@@ -1,4 +1,12 @@
-.cargo
-target
-tests/node_modules
-workdir/languages.dna
+hc-dna/.cargo
+hc-dna/target
+hc-dna/tests/node_modules
+hc-dna/workdir/languages.dna
+
+build/*
+
+*.js
+*.js.map
+!*.config.js 
+
+node_modules
