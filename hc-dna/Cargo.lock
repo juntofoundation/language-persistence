@@ -4,6 +4,7 @@
 name = "anchored-expression"
 version = "0.1.0"
 dependencies = [
+ "chrono",
  "derive_more",
  "hdk",
  "holo_hash",
@@ -93,6 +94,7 @@ dependencies = [
  "libc",
  "num-integer",
  "num-traits",
+ "serde",
  "time",
  "winapi",
 ]

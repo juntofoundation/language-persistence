@@ -1,11 +1,6 @@
 use hdk::prelude::*;
+use chrono::{DateTime, Utc};
 
-#[derive(Clone, Serialize, Deserialize, SerializedBytes, Debug)]
-pub struct Agent {
-    pub did: String,
-    pub name: Option<String>,
-    pub email: Option<String>
-}
 #[derive(Clone, Serialize, Deserialize, SerializedBytes, Debug)]
 pub struct ExpressionProof {
     pub signature: String,
@@ -15,8 +10,8 @@ pub struct ExpressionProof {
 #[hdk_entry(id = "expression", visibility = "public")]
 #[derive(Clone)]
 pub struct Expression {
-    pub author: Agent,
-    pub timestamp: String,
+    pub author: String,
+    pub timestamp: DateTime<Utc>,
     pub data: String,
     pub proof: ExpressionProof
 }

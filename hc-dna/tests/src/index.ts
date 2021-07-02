@@ -38,7 +38,7 @@ orchestrator.registerScenario("create a code", async (s, t) => {
 
   const expression = {
     author: agent,
-    timestamp: "now",
+    timestamp: new Date().toISOString(),
     data: [0,1,2].toString(),
     proof
   }
