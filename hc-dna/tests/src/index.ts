@@ -24,20 +24,14 @@ const orchestrator = new Orchestrator();
 orchestrator.registerScenario("create a code", async (s, t) => {
   const [alice] = await s.players([conductorConfig]);
   const [[anchored_expression]] = await alice.installAgentsHapps(installation);
-
-  const agent = {
-    did: "did:test:test",
-    name: "Testy Tester",
-    email: "tt@probing.inc"
-  }
-
+  
   const proof = {
     signature: "asdfasdfasdf",
     key: "did:test:test#primary"
   }
 
   const expression = {
-    author: agent,
+    author: "did:test:test",
     timestamp: new Date().toISOString(),
     data: [0,1,2].toString(),
     proof
