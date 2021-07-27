@@ -67,7 +67,7 @@ pub fn get_links_and_load_type<R: TryFrom<Entry>>(
        .iter()
        .map(
            |link|  {
-               if let Some(element) = get(link.target.clone(), Default::default()).map_err(|_| "Get error")? {
+               if let Some(element) = get(link.target.clone(), GetOptions::content()).map_err(|_| "Get error")? {
                    let e: Entry = element.entry().clone().into_option().ok_or("Hash not found")?;
                    let entry: R = R::try_from(e).map_err(|_e| "Hash not found")?;
                    return Ok(entry);
