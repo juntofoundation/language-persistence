@@ -14,7 +14,7 @@ export class IpfsPutAdapter implements PublicSharing {
 
   async createPublic(languageData: object): Promise<Address> {
     // @ts-ignore
-    const { bundleFile, name, description, encrypted } = languageData;
+    const { bundleFile, name, description, templateParams, sourceLanguageHash, dnaYamlHash, dnaZomeWasmHash, githubLink } = languageData;
 
     const ipfsAddress = await this.#IPFS.add({
       content: bundleFile.toString(),
@@ -26,7 +26,12 @@ export class IpfsPutAdapter implements PublicSharing {
     const expression = agent.createSignedExpression({
       name,
       description,
-      encrypted,
+      templateParams, 
+      hash: hash,
+      sourceLanguageHash, 
+      dnaYamlHash, 
+      dnaZomeWasmHash, 
+      githubLink
     });
     expression.data = Buffer.from(JSON.stringify(expression.data));
     await this.#holochain.call(
