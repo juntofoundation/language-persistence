@@ -23,7 +23,7 @@ export class IpfsPutAdapter implements PublicSharing {
     const hash = ipfsAddress.cid.toString();
 
     const agent = this.#agent;
-    const expression = agent.createSignedExpression({
+    const expression = agent.createSignedExpression(JSON.stringify({
       name,
       description,
       templateParams, 
@@ -32,8 +32,7 @@ export class IpfsPutAdapter implements PublicSharing {
       dnaYamlHash, 
       dnaZomeWasmHash, 
       githubLink
-    });
-    expression.data = Buffer.from(JSON.stringify(expression.data));
+    }));
     await this.#holochain.call(
       DNA_NICK,
       "anchored-expression",
