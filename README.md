@@ -7,7 +7,7 @@ This is a Language about Languages - a way to publish and make available Languag
 The whole project compiles and bundles to one file: `build/bundle.js`.
 
 This happens in two steps:
-1. The *Icons* (AD4M-speak for UI components) [ConstructorIcon.svelte](ConstructorIcon.svelte) and (Icon.svelte)[Icon.svelte] get compiled to `build/ConstructorIcon.js` and `build/Icon.js` respectively as web components. This first step is configured with [rollup.config.icons.js](rollup.config.icons.js)
+1. The *Icons* (AD4M-speak for UI components) [ConstructorIcon.svelte](ConstructorIcon.svelte) and [Icon.svelte](Icon.svelte) get compiled to `build/ConstructorIcon.js` and `build/Icon.js` respectively as web components. This first step is configured with [rollup.config.icons.js](rollup.config.icons.js)
 2. [index.ts](index.ts) gets compiled and bundled to `build/bundle.js`. During this bundling step, `rollup-plugin-string` is used to include the two web component files that represent the Icons as string literals inside the resulting bundle.
 
 ## Injected context
