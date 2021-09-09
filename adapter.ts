@@ -33,8 +33,12 @@ export default class Adapter implements ExpressionAdapter {
 
     if (expressions.length === 0) return null;
 
+
     const expression = expressions.pop();
-    expression.data = JSON.parse(expression.data);
+    for(const prop of Object.keys(expression.data)) {
+      if(expression.data[prop] === null)
+        delete expression.data[prop]
+    }
     return expression;
   }
 }

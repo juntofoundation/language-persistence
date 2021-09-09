@@ -1,4 +1,4 @@
-import type { Address, AgentService, PublicSharing, HolochainLanguageDelegate, IPFSNode, LanguageContext } from "@perspect3vism/ad4m";
+import type { Address, AgentService, PublicSharing, HolochainLanguageDelegate, IPFSNode, LanguageContext, LanguageLanguageInput} from "@perspect3vism/ad4m";
 import { DNA_NICK } from "./dna";
 
 export class IpfsPutAdapter implements PublicSharing {
@@ -12,27 +12,19 @@ export class IpfsPutAdapter implements PublicSharing {
     this.#holochain = context.Holochain as HolochainLanguageDelegate;
   }
 
-  async createPublic(languageData: object): Promise<Address> {
-    // @ts-ignore
-    const { bundleFile, name, description, templateParams, sourceLanguageHash, dnaYamlHash, dnaZomeWasmHash, githubLink } = languageData;
+  async createPublic(language: LanguageLanguageInput): Promise<Address> {
 
     const ipfsAddress = await this.#IPFS.add({
-      content: bundleFile.toString(),
+      content:  language.bundle.toString(),
     });
     // @ts-ignore
     const hash = ipfsAddress.cid.toString();
 
+    if(hash != language.meta.address)
+      throw new Error(`Language Persistence: Can't store language. Address stated in meta differs from actual file\nWanted: ${language.meta.address}\nGot: ${hash}`)
+
     const agent = this.#agent;
-    const expression = agent.createSignedExpression(JSON.stringify({
-      name,
-      description,
-      templateParams, 
-      hash: hash,
-      sourceLanguageHash, 
-      dnaYamlHash, 
-      dnaZomeWasmHash, 
-      githubLink
-    }));
+    const expression = agent.createSignedExpression(language.meta);
     await this.#holochain.call(
       DNA_NICK,
       "anchored-expression",

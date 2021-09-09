@@ -7,12 +7,23 @@ pub struct ExpressionProof {
     pub key: String
 }
 
+#[derive(Clone, Serialize, Deserialize, SerializedBytes, Debug)]
+#[serde(rename_all = "camelCase")]
+pub struct LanguageMetaInternal {
+    pub name: String,
+    pub address: String,
+    pub description: String,
+    pub template_source_language_address: Option<String>,
+    pub template_applied_params: Option<String>,
+    pub possible_template_params: Option<Vec<String>>,
+    pub source_code_link: Option<String>,
+}
 #[hdk_entry(id = "expression", visibility = "public")]
 #[derive(Clone)]
 pub struct Expression {
     pub author: String,
     pub timestamp: DateTime<Utc>,
-    pub data: String,
+    pub data: LanguageMetaInternal,
     pub proof: ExpressionProof
 }
 
