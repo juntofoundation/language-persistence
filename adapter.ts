@@ -34,7 +34,7 @@ export default class Adapter implements ExpressionAdapter {
     if (expressions.length === 0) return null;
 
     const expression = expressions.pop();
-    expressions.data = JSON.parse(Buffer.from(expression.data).toString());
+    expression.data = JSON.parse(expression.data);
     return expression;
   }
 }
