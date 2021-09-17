@@ -1,15 +1,13 @@
 import type { Address, AgentService, PublicSharing, HolochainLanguageDelegate, IPFSNode, LanguageContext, LanguageLanguageInput} from "@perspect3vism/ad4m";
-import { DNA_NICK } from "./dna";
+import https from "https";
 
 export class IpfsPutAdapter implements PublicSharing {
   #agent: AgentService;
   #IPFS: IPFSNode;
-  #holochain: HolochainLanguageDelegate;
 
   constructor(context: LanguageContext) {
     this.#agent = context.agent;
     this.#IPFS = context.IPFS;
-    this.#holochain = context.Holochain as HolochainLanguageDelegate;
   }
 
   async createPublic(language: LanguageLanguageInput): Promise<Address> {
@@ -25,15 +23,36 @@ export class IpfsPutAdapter implements PublicSharing {
 
     const agent = this.#agent;
     const expression = agent.createSignedExpression(language.meta);
-    await this.#holochain.call(
-      DNA_NICK,
-      "anchored-expression",
-      "store_expression",
-      {
-        key: hash,
-        expression,
+
+    var postData = JSON.stringify({
+      key: hash,
+      expression,
+    });
+
+    const options = {
+      hostname: "language-store.jdeepee.repl.co",
+      port: 443,
+      path: '/store',
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Content-Length': Buffer.byteLength(postData)
       }
-    );
+    }
+
+    await new Promise((resolve, reject) => {
+      var req = https.request(options);
+      
+      req.on('error', (e) => {
+        console.log(`LanguageLanguage: problem with request: ${e.message}`);
+        throw new Error(e.message)
+      });
+      
+      // write data to request body
+      req.write(postData);
+      req.end();
+      resolve("Finished")
+    })
 
     return hash as Address;
   }

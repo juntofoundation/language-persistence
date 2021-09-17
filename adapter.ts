@@ -1,44 +1,44 @@
 import type { Address, Expression, ExpressionAdapter, PublicSharing, HolochainLanguageDelegate, LanguageContext } from "@perspect3vism/ad4m";
 import { IpfsPutAdapter } from "./putAdapter";
-import { DNA_NICK } from "./dna";
-
-const _appendBuffer = (buffer1, buffer2) => {
-  const tmp = new Uint8Array(buffer1.byteLength + buffer2.byteLength);
-  tmp.set(new Uint8Array(buffer1), 0);
-  tmp.set(new Uint8Array(buffer2), buffer1.byteLength);
-  return tmp.buffer;
-};
-
-const uint8ArrayConcat = (chunks) => {
-  return chunks.reduce(_appendBuffer);
-};
+import https from "https";
 
 export default class Adapter implements ExpressionAdapter {
-  #holochain: HolochainLanguageDelegate;
 
   putAdapter: PublicSharing;
 
   constructor(context: LanguageContext) {
-    this.#holochain = context.Holochain as HolochainLanguageDelegate;
     this.putAdapter = new IpfsPutAdapter(context);
   }
 
+  //@ts-ignore
   async get(address: Address): Promise<void | Expression> {
-    const { expressions } = await this.#holochain.call(
-      DNA_NICK,
-      "anchored-expression",
-      "get_expressions",
-      { key: address }
-    );
+    let request_call = new Promise((resolve, reject) => {
+      https.get(`https://language-store.jdeepee.repl.co/get/${address}`, (response) => {
+        let chunks_of_data = [];
+    
+        response.on('data', (fragments) => {
+          chunks_of_data.push(fragments);
+        });
+    
+        response.on('end', () => {
+          let response_body = Buffer.concat(chunks_of_data);
+          
+          // promise resolved on success
+          resolve({body: response_body.toString(), status: response.statusCode!});
+        });
+    
+        response.on('error', (error) => {
+          // promise rejected on error
+          reject(error);
+        });
+      });
+    });
 
-    if (expressions.length === 0) return null;
-
-
-    const expression = expressions.pop();
-    for(const prop of Object.keys(expression.data)) {
-      if(expression.data[prop] === null)
-        delete expression.data[prop]
-    }
-    return expression;
+    let response = await request_call;
+    //@ts-ignore
+    if (response.status == 404) return null
+    //@ts-ignore
+    const expression = JSON.parse(JSON.parse(response.body));
+    return expression as Expression;
   }
 }
