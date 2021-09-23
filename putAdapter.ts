@@ -1,6 +1,10 @@
 import type { Address, AgentService, PublicSharing, HolochainLanguageDelegate, IPFSNode, LanguageContext, LanguageLanguageInput} from "@perspect3vism/ad4m";
 import https from "https";
 
+export default function sleep(ms: number): Promise<any> {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
 export class IpfsPutAdapter implements PublicSharing {
   #agent: AgentService;
   #IPFS: IPFSNode;
@@ -53,7 +57,7 @@ export class IpfsPutAdapter implements PublicSharing {
       req.end();
       resolve("Finished")
     })
-
+    await sleep(20)
     return hash as Address;
   }
 }

@@ -1,6 +1,6 @@
 {
   "name": "languages",
-  "version": "0.0.5",
+  "version": "0.0.8",
   "description": "An AD4M Language for storing of language bundles on IPFS",
   "main": "index.js",
   "scripts": {
