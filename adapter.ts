@@ -1,5 +1,6 @@
 import type { Address, Expression, ExpressionAdapter, PublicSharing, HolochainLanguageDelegate, LanguageContext } from "@perspect3vism/ad4m";
 import { IpfsPutAdapter } from "./putAdapter";
+import axios from "axios";
 import https from "https";
 
 export default class Adapter implements ExpressionAdapter {
@@ -12,33 +13,15 @@ export default class Adapter implements ExpressionAdapter {
 
   //@ts-ignore
   async get(address: Address): Promise<void | Expression> {
-    let request_call = new Promise((resolve, reject) => {
-      https.get(`https://language-store.jdeepee.repl.co/get/${address}`, (response) => {
-        let chunks_of_data = [];
-    
-        response.on('data', (fragments) => {
-          chunks_of_data.push(fragments);
-        });
-    
-        response.on('end', () => {
-          let response_body = Buffer.concat(chunks_of_data);
-          
-          // promise resolved on success
-          resolve({body: response_body.toString(), status: response.statusCode!});
-        });
-    
-        response.on('error', (error) => {
-          // promise rejected on error
-          reject(error);
-        });
-      });
+    const agent = new https.Agent({
+        rejectUnauthorized: false
     });
 
-    let response = await request_call;
-    //@ts-ignore
-    if (response.status == 404) return null
-    //@ts-ignore
-    const expression = JSON.parse(JSON.parse(response.body));
+    axios.defaults.baseURL = "https://language-store.jdeepee.repl.co";
+    let response = await axios.get(`/get/${address}`, { httpsAgent: agent });
+    if (response.status === 404) { return null }
+    console.log(response.data);
+    const expression = JSON.parse(response.data);
     return expression as Expression;
   }
 }
