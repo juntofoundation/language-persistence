@@ -16,12 +16,17 @@ export default class Adapter implements ExpressionAdapter {
     const agent = new https.Agent({
         rejectUnauthorized: false
     });
-
     axios.defaults.baseURL = "https://language-store.jdeepee.repl.co";
-    let response = await axios.get(`/get/${address}`, { httpsAgent: agent });
-    if (response.status === 404) { return null }
-    console.log(response.data);
-    const expression = JSON.parse(response.data);
-    return expression as Expression;
+    try {
+      let response = await axios.get(`/get/${address}`, { httpsAgent: agent });
+      const expression = JSON.parse(response.data);
+      return expression;
+    } catch (e) {
+      if (e.response.status === 404) {
+        return null;
+      } else {
+        throw new Error(e)
+      }
+    }
   }
 }
