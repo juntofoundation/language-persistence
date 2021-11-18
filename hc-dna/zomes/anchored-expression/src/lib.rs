@@ -72,7 +72,7 @@ pub fn get_links_and_load_type<R: TryFrom<Entry>>(
     base: EntryHash,
     tag: Option<LinkTag>,
 ) -> ExternResult<Vec<R>> {
-    let links = get_links(base.into(), tag)?.into_inner();
+    let links = get_links(base.into(), tag)?;
 
     Ok(links
        .iter()

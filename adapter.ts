@@ -23,7 +23,7 @@ export default class Adapter implements ExpressionAdapter {
     this.putAdapter = new IpfsPutAdapter(context);
   }
 
-  async get(address: Address): Promise<void | Expression> {
+  async get(address: Address): Promise<Expression> {
     const { expressions } = await this.#holochain.call(
       DNA_NICK,
       "anchored-expression",
