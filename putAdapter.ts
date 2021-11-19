@@ -1,6 +1,7 @@
-import type { Address, AgentService, PublicSharing, HolochainLanguageDelegate, IPFSNode, LanguageContext, LanguageLanguageInput} from "@perspect3vism/ad4m";
+import type { Address, AgentService, PublicSharing, LanguageContext, LanguageLanguageInput} from "@perspect3vism/ad4m";
 import axios from "axios";
 import https from "https";
+import type { IPFS } from "ipfs-core-types";
 
 export default function sleep(ms: number): Promise<any> {
   return new Promise((resolve) => setTimeout(resolve, ms));
@@ -8,7 +9,7 @@ export default function sleep(ms: number): Promise<any> {
 
 export class IpfsPutAdapter implements PublicSharing {
   #agent: AgentService;
-  #IPFS: IPFSNode;
+  #IPFS: IPFS;
 
   constructor(context: LanguageContext) {
     this.#agent = context.agent;
