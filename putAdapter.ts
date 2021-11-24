@@ -1,19 +1,22 @@
-import type { Address, AgentService, PublicSharing, HolochainLanguageDelegate, IPFSNode, LanguageContext, LanguageLanguageInput} from "@perspect3vism/ad4m";
-import { DNA_NICK } from "./dna";
+import type { Address, AgentService, PublicSharing, LanguageContext, LanguageLanguageInput} from "@perspect3vism/ad4m";
+import axios from "axios";
+import https from "https";
+import type { IPFS } from "ipfs-core-types";
+
+export default function sleep(ms: number): Promise<any> {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
 
 export class IpfsPutAdapter implements PublicSharing {
   #agent: AgentService;
-  #IPFS: IPFSNode;
-  #holochain: HolochainLanguageDelegate;
+  #IPFS: IPFS;
 
   constructor(context: LanguageContext) {
     this.#agent = context.agent;
     this.#IPFS = context.IPFS;
-    this.#holochain = context.Holochain as HolochainLanguageDelegate;
   }
 
   async createPublic(language: LanguageLanguageInput): Promise<Address> {
-
     const ipfsAddress = await this.#IPFS.add({
       content:  language.bundle.toString(),
     });
@@ -25,16 +28,17 @@ export class IpfsPutAdapter implements PublicSharing {
 
     const agent = this.#agent;
     const expression = agent.createSignedExpression(language.meta);
-    await this.#holochain.call(
-      DNA_NICK,
-      "anchored-expression",
-      "store_expression",
-      {
-        key: hash,
-        expression,
-      }
-    );
 
+    var postData = {
+      key: hash,
+      expression,
+    };
+
+    const httpsAgent = new https.Agent({
+        rejectUnauthorized: false
+    });
+    axios.defaults.baseURL = "https://language-store.jdeepee.repl.co";
+    let post = await axios.post("/store", postData, { httpsAgent });
     return hash as Address;
   }
 }

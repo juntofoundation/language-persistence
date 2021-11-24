@@ -1,4 +1,5 @@
-import type { Address, LanguageAdapter, PublicSharing, IPFSNode, LanguageContext } from "@perspect3vism/ad4m";
+import type { Address, LanguageAdapter, PublicSharing, LanguageContext } from "@perspect3vism/ad4m";
+import type { IPFS } from 'ipfs-core-types';
 
 const _appendBuffer = (buffer1, buffer2) => {
   const tmp = new Uint8Array(buffer1.byteLength + buffer2.byteLength);
@@ -12,7 +13,7 @@ const uint8ArrayConcat = (chunks) => {
 };
 
 export default class LangAdapter implements LanguageAdapter {
-  #IPFS: IPFSNode;
+  #IPFS: IPFS;
 
   putAdapter: PublicSharing;
 
@@ -28,6 +29,7 @@ export default class LangAdapter implements LanguageAdapter {
     for await (const chunk of this.#IPFS.cat(cid)) {
       chunks.push(chunk);
     }
+    this.#IPFS.pin.add(cid);
 
     const fileString = Buffer.from(uint8ArrayConcat(chunks)).toString();
     return fileString;
