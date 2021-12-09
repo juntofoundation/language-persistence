@@ -2,6 +2,7 @@ import type { Address, AgentService, PublicSharing, LanguageContext, LanguageLan
 import axios from "axios";
 import https from "https";
 import type { IPFS } from "ipfs-core-types";
+import { s3, BUCKET_NAME } from "./config";
 
 export default function sleep(ms: number): Promise<any> {
   return new Promise((resolve) => setTimeout(resolve, ms));
@@ -18,7 +19,7 @@ export class IpfsPutAdapter implements PublicSharing {
 
   async createPublic(language: LanguageLanguageInput): Promise<Address> {
     const ipfsAddress = await this.#IPFS.add({
-      content:  language.bundle.toString(),
+      content: language.bundle.toString(),
     });
     // @ts-ignore
     const hash = ipfsAddress.cid.toString();
@@ -39,6 +40,14 @@ export class IpfsPutAdapter implements PublicSharing {
     });
     axios.defaults.baseURL = "https://language-store.jdeepee.repl.co";
     let post = await axios.post("/store", postData, { httpsAgent });
+
+    const params = {
+      Bucket: BUCKET_NAME,
+      Key: hash,
+      Body: language.bundle.toString()
+    };
+    const _bundleRes = await s3.upload(params).promise();
+
     return hash as Address;
   }
 }
