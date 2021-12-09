@@ -10,7 +10,6 @@ export const s3 = new S3({
   endpoint,
   s3ForcePathStyle: true,
   signatureVersion: "v4",
-  connectTimeout: 0,
   httpOptions: { timeout: 0 }
 });
 
