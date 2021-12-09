@@ -1,6 +1,17 @@
 import type { Address, LanguageAdapter, PublicSharing, LanguageContext } from "@perspect3vism/ad4m";
 import type { IPFS } from 'ipfs-core-types';
 import { s3, BUCKET_NAME } from './config';
+import { GetObjectCommand } from "@aws-sdk/client-s3";
+import type { Readable } from "stream";
+
+async function streamToString (stream: Readable): Promise<string> {
+  return await new Promise((resolve, reject) => {
+    const chunks: Uint8Array[] = [];
+    stream.on('data', (chunk) => chunks.push(chunk));
+    stream.on('error', reject);
+    stream.on('end', () => resolve(Buffer.concat(chunks).toString('utf-8')));
+  });
+}
 
 export default class LangAdapter implements LanguageAdapter {
   #IPFS: IPFS;
@@ -18,8 +29,10 @@ export default class LangAdapter implements LanguageAdapter {
       Bucket: BUCKET_NAME,
       Key: hash
     };
-    const obj = await s3.getObject(params).promise();
+    const data = await s3.send(new GetObjectCommand(params));
+
+    const contents = await streamToString(data.Body as Readable);
   
-    return obj.Body.toString('utf-8');
+    return contents;
   }
 }

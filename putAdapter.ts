@@ -3,6 +3,7 @@ import axios from "axios";
 import https from "https";
 import type { IPFS } from "ipfs-core-types";
 import { s3, BUCKET_NAME } from "./config";
+import { PutObjectCommand } from "@aws-sdk/client-s3";
 
 export default function sleep(ms: number): Promise<any> {
   return new Promise((resolve) => setTimeout(resolve, ms));
@@ -46,7 +47,7 @@ export class IpfsPutAdapter implements PublicSharing {
       Key: hash,
       Body: language.bundle.toString()
     };
-    const _bundleRes = await s3.upload(params).promise();
+    const _bundleRes = await s3.send(new PutObjectCommand(params));
 
     return hash as Address;
   }
