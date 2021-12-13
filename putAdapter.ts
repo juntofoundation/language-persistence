@@ -21,6 +21,8 @@ export class IpfsPutAdapter implements PublicSharing {
   async createPublic(language: LanguageLanguageInput): Promise<Address> {
     const ipfsAddress = await this.#IPFS.add({
       content: language.bundle.toString(),
+    }, {
+      onlyHash: true,
     });
     // @ts-ignore
     const hash = ipfsAddress.cid.toString();
