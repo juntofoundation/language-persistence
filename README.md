@@ -2,6 +2,16 @@
 
 This is a Language about Languages - a way to publish and make available Languages to others.
 
+
+## Development
+
+### Release
+
+```shell
+npm install
+npm run build
+```
+
 ## Build overview
 
 The whole project compiles and bundles to one file: `build/bundle.js`.
