@@ -2,6 +2,7 @@ import type { Address, AgentService, PublicSharing, LanguageContext, LanguageLan
 import axios from "axios";
 import https from "https";
 import type { IPFS } from "ipfs-core-types";
+import { UPLOAD_ENDPOINT } from "./config";
 
 export default function sleep(ms: number): Promise<any> {
   return new Promise((resolve) => setTimeout(resolve, ms));
@@ -33,12 +34,11 @@ export class IpfsPutAdapter implements PublicSharing {
     const httpsAgent = new https.Agent({
       rejectUnauthorized: false
     });
-    const uploadEndpoint = "https://bi8fgdofma.execute-api.us-west-2.amazonaws.com/dev/serverlessSetup/upload";
     const metaPostData = {
       hash: `meta-${hash}`,
       content: JSON.stringify(expression),
     };
-    const metaPostResult = await axios.post(uploadEndpoint, metaPostData, { httpsAgent });
+    const metaPostResult = await axios.post(UPLOAD_ENDPOINT, metaPostData, { httpsAgent });
     if (metaPostResult.status != 200) {
       console.error("Upload language meta data gets error: ", metaPostResult);
     }
@@ -47,7 +47,7 @@ export class IpfsPutAdapter implements PublicSharing {
       hash,
       content: language.bundle.toString()
     }
-    const langPostResult = await axios.post(uploadEndpoint, langPostData, { httpsAgent });
+    const langPostResult = await axios.post(UPLOAD_ENDPOINT, langPostData, { httpsAgent });
     if (langPostResult.status != 200) {
       console.error("Upload language gets error: ", langPostResult);
     }

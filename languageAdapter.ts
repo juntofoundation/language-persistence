@@ -1,6 +1,7 @@
 import type { Address, LanguageAdapter, PublicSharing, LanguageContext } from "@perspect3vism/ad4m";
 import type { IPFS } from 'ipfs-core-types';
 import axios from "axios";
+import { GET_ENDPOINT } from "./config";
 
 export default class LangAdapter implements LanguageAdapter {
   #IPFS: IPFS;
@@ -12,7 +13,7 @@ export default class LangAdapter implements LanguageAdapter {
   }
 
   async getLanguageSource(address: Address): Promise<string> {
-    const getResult = await axios.get(`https://bi8fgdofma.execute-api.us-west-2.amazonaws.com/dev/flux-files/get?hash=${address}`);
+    const getResult = await axios.get(`${GET_ENDPOINT}?hash=${address}`);
     if (getResult.status != 200) {
       console.error("Get language content with error: ", getResult);
     }
