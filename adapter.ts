@@ -1,7 +1,6 @@
-import type { Address, Expression, ExpressionAdapter, PublicSharing, HolochainLanguageDelegate, LanguageContext } from "@perspect3vism/ad4m";
+import type { Address, Expression, ExpressionAdapter, PublicSharing, LanguageContext } from "@perspect3vism/ad4m";
 import { IpfsPutAdapter } from "./putAdapter";
 import axios from "axios";
-import https from "https";
 
 export default class Adapter implements ExpressionAdapter {
 
@@ -13,20 +12,13 @@ export default class Adapter implements ExpressionAdapter {
 
   //@ts-ignore
   async get(address: Address): Promise<void | Expression> {
-    const agent = new https.Agent({
-        rejectUnauthorized: false
-    });
-    axios.defaults.baseURL = "https://language-store.jdeepee.repl.co";
-    try {
-      let response = await axios.get(`/get/${address}`, { httpsAgent: agent });
-      const expression = JSON.parse(response.data);
-      return expression;
-    } catch (e) {
-      if (e.response.status === 404) {
-        return null;
-      } else {
-        throw new Error(e)
-      }
+
+    const metadataHash = `meta-${address}`;
+    const getResult = await axios.get(`https://bi8fgdofma.execute-api.us-west-2.amazonaws.com/dev/flux-files/get?hash=${metadataHash}`);
+    if (getResult.status != 200) {
+      console.error("Get language metadata with error: ", getResult);
     }
+
+    return getResult.data;
   }
 }

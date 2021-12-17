@@ -2,8 +2,6 @@ import type { Address, AgentService, PublicSharing, LanguageContext, LanguageLan
 import axios from "axios";
 import https from "https";
 import type { IPFS } from "ipfs-core-types";
-import { s3, BUCKET_NAME } from "./config";
-import { PutObjectCommand } from "@aws-sdk/client-s3";
 
 export default function sleep(ms: number): Promise<any> {
   return new Promise((resolve) => setTimeout(resolve, ms));
@@ -19,11 +17,10 @@ export class IpfsPutAdapter implements PublicSharing {
   }
 
   async createPublic(language: LanguageLanguageInput): Promise<Address> {
-    const ipfsAddress = await this.#IPFS.add({
-      content: language.bundle.toString(),
-    }, {
-      onlyHash: true,
-    });
+    const ipfsAddress = await this.#IPFS.add(
+      { content: language.bundle.toString()},
+      { onlyHash: true},
+    );
     // @ts-ignore
     const hash = ipfsAddress.cid.toString();
 
@@ -33,23 +30,27 @@ export class IpfsPutAdapter implements PublicSharing {
     const agent = this.#agent;
     const expression = agent.createSignedExpression(language.meta);
 
-    var postData = {
-      key: hash,
-      expression,
-    };
-
     const httpsAgent = new https.Agent({
-        rejectUnauthorized: false
+      rejectUnauthorized: false
     });
-    axios.defaults.baseURL = "https://language-store.jdeepee.repl.co";
-    let post = await axios.post("/store", postData, { httpsAgent });
-
-    const params = {
-      Bucket: BUCKET_NAME,
-      Key: hash,
-      Body: language.bundle.toString()
+    const uploadEndpoint = "https://bi8fgdofma.execute-api.us-west-2.amazonaws.com/dev/serverlessSetup/upload";
+    const metaPostData = {
+      hash: `meta-${hash}`,
+      content: JSON.stringify(expression),
     };
-    const _bundleRes = await s3.send(new PutObjectCommand(params));
+    const metaPostResult = await axios.post(uploadEndpoint, metaPostData, { httpsAgent });
+    if (metaPostResult.status != 200) {
+      console.error("Upload language meta data gets error: ", metaPostResult);
+    }
+
+    const langPostData = {
+      hash,
+      content: language.bundle.toString()
+    }
+    const langPostResult = await axios.post(uploadEndpoint, langPostData, { httpsAgent });
+    if (langPostResult.status != 200) {
+      console.error("Upload language gets error: ", langPostResult);
+    }
 
     return hash as Address;
   }

@@ -1,17 +1,6 @@
 import type { Address, LanguageAdapter, PublicSharing, LanguageContext } from "@perspect3vism/ad4m";
 import type { IPFS } from 'ipfs-core-types';
-import { s3, BUCKET_NAME } from './config';
-import { GetObjectCommand } from "@aws-sdk/client-s3";
-import type { Readable } from "stream";
-
-async function streamToString (stream: Readable): Promise<string> {
-  return await new Promise((resolve, reject) => {
-    const chunks: Uint8Array[] = [];
-    stream.on('data', (chunk) => chunks.push(chunk));
-    stream.on('error', reject);
-    stream.on('end', () => resolve(Buffer.concat(chunks).toString('utf-8')));
-  });
-}
+import axios from "axios";
 
 export default class LangAdapter implements LanguageAdapter {
   #IPFS: IPFS;
@@ -23,16 +12,11 @@ export default class LangAdapter implements LanguageAdapter {
   }
 
   async getLanguageSource(address: Address): Promise<string> {
-    const hash = address.toString();
+    const getResult = await axios.get(`https://bi8fgdofma.execute-api.us-west-2.amazonaws.com/dev/flux-files/get?hash=${address}`);
+    if (getResult.status != 200) {
+      console.error("Get language content with error: ", getResult);
+    }
 
-    const params = {
-      Bucket: BUCKET_NAME,
-      Key: hash
-    };
-    const data = await s3.send(new GetObjectCommand(params));
-
-    const contents = await streamToString(data.Body as Readable);
-  
-    return contents;
+    return getResult.data;
   }
 }
