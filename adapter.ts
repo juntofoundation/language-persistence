@@ -1,7 +1,9 @@
 import type { Address, Expression, ExpressionAdapter, PublicSharing, LanguageContext } from "@perspect3vism/ad4m";
 import { IpfsPutAdapter } from "./putAdapter";
-import axios from "axios";
-import { GET_ENDPOINT } from "./config";
+import { BUCKET_NAME, s3 } from "./config";
+import { GetObjectCommand } from "@aws-sdk/client-s3";
+import type { Readable } from "stream";
+import { streamToString } from "./util";
 
 export default class Adapter implements ExpressionAdapter {
 
@@ -13,13 +15,16 @@ export default class Adapter implements ExpressionAdapter {
 
   //@ts-ignore
   async get(address: Address): Promise<void | Expression> {
-
     const metadataHash = `meta-${address}`;
-    const getResult = await axios.get(`${GET_ENDPOINT}?hash=${metadataHash}`);
-    if (getResult.status != 200) {
-      console.error("Get language metadata with error: ", getResult);
-    }
 
-    return getResult.data;
+    const params = {
+      Bucket: BUCKET_NAME,
+      Key: metadataHash,
+    };
+
+    const response = await s3.send(new GetObjectCommand(params));
+    const contents = await streamToString(response.Body as Readable);
+
+    return JSON.parse(contents);
   }
 }

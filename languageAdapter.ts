@@ -1,7 +1,9 @@
 import type { Address, LanguageAdapter, PublicSharing, LanguageContext } from "@perspect3vism/ad4m";
 import type { IPFS } from 'ipfs-core-types';
-import axios from "axios";
-import { GET_ENDPOINT } from "./config";
+import { BUCKET_NAME, s3 } from "./config";
+import { GetObjectCommand } from "@aws-sdk/client-s3";
+import { streamToString } from "./util";
+import type { Readable } from "stream";
 
 export default class LangAdapter implements LanguageAdapter {
   #IPFS: IPFS;
@@ -13,11 +15,16 @@ export default class LangAdapter implements LanguageAdapter {
   }
 
   async getLanguageSource(address: Address): Promise<string> {
-    const getResult = await axios.get(`${GET_ENDPOINT}?hash=${address}`);
-    if (getResult.status != 200) {
-      console.error("Get language content with error: ", getResult);
-    }
+    const cid = address.toString();
 
-    return getResult.data;
+    const params = {
+      Bucket: BUCKET_NAME,
+      Key: cid,
+    };
+
+    const response = await s3.send(new GetObjectCommand(params));
+    const contents = await streamToString(response.Body as Readable);
+
+    return contents;
   }
 }
